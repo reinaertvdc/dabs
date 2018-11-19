@@ -1,6 +1,7 @@
 from os import listdir
 from os.path import join
 
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -43,17 +44,20 @@ class Ada:
 
         # Open the search page.
         b.get(self._search_url)
+        b.find_element_by_id('ctl00_Plh1_lnkButtons_pnlButtons').find_elements_by_tag_name('a')[3].click()
 
         # Enter the search criteria.
-        id_prefix = 'ctl00_Plh1_domasearch_'
-        b.find_element_by_id(
-            id_prefix + 'dm110205_propvalue_Input').send_keys(category)
-        b.find_element_by_id(id_prefix + 'dm110114').send_keys(names)
-        b.find_element_by_id(id_prefix + 'dm110094').send_keys(year)
-        b.find_element_by_id(id_prefix + 'dm110070').send_keys(number)
+        id_prefix = "//*[@name='ctl00_Plh1_grd_"
+        b.find_element_by_xpath(
+            id_prefix + "fltcat']").send_keys(category)
+        b.find_element_by_xpath(id_prefix + "flttitle']").send_keys(names)
+        if year:
+            b.find_element_by_xpath(id_prefix + "flttitle']").send_keys(' ' + year)
+        if number:
+            b.find_element_by_xpath(id_prefix + "flttitle']").send_keys(' ' + number)
 
         # Submit the search.
-        b.find_element_by_id('ctl00_Plh1_lnkButtons_HyperLink1').click()
+        b.find_element_by_xpath(id_prefix + "flttitle']").send_keys(Keys.ENTER)
 
         # Open the list of matches.
         table = b.find_element_by_id(
@@ -67,18 +71,13 @@ class Ada:
         if len(certs) > 1:
             raise Exception('Found multiple matches')
 
-        # Unfold the certificate dropdown to display the download button.
-        certs[0].find_element_by_id(
-            'ctl00_Plh1_grd_docList_ctl01_togglebuton').click()
-
         # It's dangerous to assume the name of the downloaded file, so we make
         # sure the download directory is empty before downloading, making the
         # downloaded file only one in it, so as to avoid confusion.
         b.empty_download_dir()
 
         # Click the download button.
-        b.find_element_by_id('ctl00_Plh1_grd_docList_ctl01_filelistcol')\
-            .find_element_by_css_selector(
+        b.find_element_by_css_selector(
             'img[src="./Images/FileTypes/tif.gif"]').click()
 
         # Wait until the certificate is downloaded.

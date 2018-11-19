@@ -77,15 +77,20 @@ class Dabs:
         def get_toggle_button(): return self._browser.find_element_by_xpath(
             "//th[@psortablecolumn='factDate.year']")
 
+        print('a')
         toggle_button = get_toggle_button()
+        print('b')
 
         try:
             self._browser.verify(EC.presence_of_element_located(
-                (By.CLASS_NAME, 'fa-sort-asc')), toggle_button)
+                (By.CLASS_NAME, 'pi-sort-up')), toggle_button)
         except Exception:
+            print('bb')
             toggle_button.click()
+        print('c')
 
         self._wait_until_cert_list_is_loaded()
+        print('d')
 
     def _validate_cert(self, index: int) -> None:
         b = self._browser
@@ -125,7 +130,7 @@ class Dabs:
         names.extend(combinations(names, 2))
         names = reversed(names)
 
-        if int(number) > 0:
+        if number != '' and int(number) > 0:
             number = number.rjust(4, '0')
         else:
             number = None
